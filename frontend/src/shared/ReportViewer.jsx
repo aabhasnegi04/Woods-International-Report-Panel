@@ -3,10 +3,12 @@ import { Button, Fab } from '@mui/material'
 import { Box, Paper, Stack, Typography } from '@mui/material'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { getTableDensity } from './table/density'
-import AutoCharts from './charts/AutoCharts'
 import ContainerLoadingCharts from './charts/ContainerLoadingCharts'
 import ContainerMonthWiseCharts from './charts/ContainerMonthWiseCharts'
 import ContainerClientWiseCharts from './charts/ContainerClientWiseCharts'
+import DateWiseGradingCharts from './charts/DateWiseGradingCharts'
+import GradingSummaryCharts from './charts/GradingSummaryCharts'
+import DailyGradingReportCharts from './charts/DailyGradingReportCharts'
 import ExportOptions from './ExportOptions'
 import { exportData } from './exportUtils'
 
@@ -31,7 +33,53 @@ function ResultTable({ rows, title }) {
       'Container_Completed_date': 'Completion Date',
       'Destination': 'Destination',
       'Qty': 'Quantity',
-      'Amount': 'Amount'
+      'Amount': 'Amount',
+      // Date Wise Grading columns
+      'PALLET_NO': 'Pallet No',
+      'GRADING_NORMS': 'Grading Norms',
+      'GRADE': 'Grade',
+      'LENGTH': 'Length',
+      'WIDTH': 'Width',
+      'HEIGHT': 'Height',
+      'THICKNESS': 'Thickness',
+      'PCS': 'Pieces',
+      'CBM': 'CBM',
+      'ENTRY_DATE': 'Entry Date',
+      'GRADER_NAME': 'Grader Name',
+      'user_id': 'User ID',
+      'workorderno': 'Work Order No',
+      'slip_no': 'Slip No',
+      'QUALITY_NAME': 'Quality Name',
+      'EUROPE': 'Europe',
+      'SOUTH_EAST_ASIA': 'South East Asia',
+      'INDIA': 'India',
+      'WIDTH_CAT': 'Width Category',
+      'SHEETS': 'Sheets',
+      'FULL': 'Full',
+      'PART_SHEET': 'Part Sheet',
+      'BANDES': 'Bandes',
+      'SM': 'SM',
+      'TOTAL_CBM': 'Total CBM',
+      'FULL_P': 'Full %',
+      'PART_SHEET_P': 'Part Sheet %',
+      'BANDES_P': 'Bandes %',
+      'SM_P': 'SM %',
+      // Grading Summary columns
+      'DATE': 'Date',
+      'DAY': 'Day',
+      'GRADE-1': 'Grade 1',
+      'GRADE-2': 'Grade 2',
+      'GRADE-3': 'Grade 3',
+      'GRADE-4': 'Grade 4',
+      'GRADE-5': 'Grade 5',
+      'GRADE-6': 'Grade 6',
+      'TOTAL': 'Total CBM',
+      'GRADE-1P': 'Grade 1 %',
+      'GRADE-2P': 'Grade 2 %',
+      'GRADE-3P': 'Grade 3 %',
+      'GRADE-4P': 'Grade 4 %',
+      'GRADE-5P': 'Grade 5 %',
+      'GRADE-6P': 'Grade 6 %'
     }
     return columnMap[columnName] || columnName
   }
@@ -146,6 +194,20 @@ function ResultTable({ rows, title }) {
           </Box>
         ) : (
           <>
+            {/* Table Title - Fixed outside scroll area */}
+            <Box sx={{
+              p: { xs: 1.5, md: 3 }, 
+              fontWeight: 800, 
+              fontSize: { xs: '0.875rem', md: '1.3rem' },
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              textAlign: 'center',
+              letterSpacing: 0.5,
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+            }}>
+              {title}
+            </Box>
+            
             {/* Mobile scroll hint */}
             <Box sx={{ 
               display: { xs: 'flex', md: 'none' }, 
@@ -239,30 +301,6 @@ function ResultTable({ rows, title }) {
               }}
             >
               <Box component="thead">
-                {/* Table Title Row */}
-                <Box component="tr">
-                  <Box 
-                    component="th" 
-                    colSpan={keys.length}
-                    sx={{
-                      p: { xs: 1.5, md: 3 }, 
-                      fontWeight: 800, 
-                      fontSize: { xs: '0.875rem', md: '1.3rem' },
-                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                      color: 'white',
-                      textAlign: 'center',
-                      borderBottom: 'none',
-                      position: 'sticky',
-                      top: 0,
-                      zIndex: 2,
-                      letterSpacing: 0.5,
-                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                      borderRight: 'none !important'
-                    }}
-                  >
-                    {title}
-                  </Box>
-                </Box>
                 {/* Column Headers Row */}
                 <Box component="tr">
                   {keys.map((k) => {
@@ -314,16 +352,15 @@ function ResultTable({ rows, title }) {
                         }}
                       >
                         {(() => {
-                          // Format dates
+                          // Format dates to DD/MM/YYYY
                           if (k.toLowerCase().includes('date') && row[k]) {
                             try {
                               const date = new Date(row[k])
                               if (!isNaN(date.getTime())) {
-                                return date.toLocaleDateString('en-GB', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric'
-                                })
+                                const day = String(date.getDate()).padStart(2, '0')
+                                const month = String(date.getMonth() + 1).padStart(2, '0')
+                                const year = date.getFullYear()
+                                return `${day}/${month}/${year}`
                               }
                             } catch (e) {
                               // Fallback to original value if date parsing fails
@@ -352,14 +389,33 @@ function ResultTable({ rows, title }) {
 }
 
 export default function ReportViewer({ response, reportTitle = 'Result' }) {
-  const recordsets = response?.recordsets || []
-  const first = recordsets[0] || []
-  const sectionRefs = useMemo(() => recordsets.map(() => ({ current: null })), [recordsets.length])
-
-  // Check report types
-  const isContainerLoadingReport = recordsets.length === 2 && reportTitle === 'Container Loading'
+  // Check report types first
+  const isContainerLoadingReport = response?.recordsets?.length === 2 && reportTitle === 'Container Loading'
   const isContainerMonthWiseReport = reportTitle === 'Container Month Wise'
   const isContainerClientWiseReport = reportTitle === 'Container Client Wise'
+  const isDateWiseGradingReport = reportTitle === 'Date Wise Grading'
+  const isGradingSummaryReport = reportTitle === 'Grading Summary'
+  const isDailyGradingReport = reportTitle === 'Daily Grading Report'
+  
+  // Swap recordsets for Date Wise Grading (show Thickness Summary first, then Detailed Data)
+  const recordsets = useMemo(() => {
+    const sets = response?.recordsets || []
+    if (isDateWiseGradingReport && sets.length === 2) {
+      return [sets[1], sets[0]] // Swap: [Thickness Summary, Detailed Grading Data]
+    }
+    return sets
+  }, [response?.recordsets, isDateWiseGradingReport])
+  
+  // Create swapped response for charts
+  const chartResponse = useMemo(() => {
+    if (isDateWiseGradingReport && response?.recordsets?.length === 2) {
+      return { ...response, recordsets }
+    }
+    return response
+  }, [response, recordsets, isDateWiseGradingReport])
+  
+  const first = recordsets[0] || []
+  const sectionRefs = useMemo(() => recordsets.map(() => ({ current: null })), [recordsets.length])
   
   // Export state
   const [isExporting, setIsExporting] = useState(false)
@@ -411,7 +467,17 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
         <Box sx={{ width: '100%', m: 0, p: 0 }}>
           <ContainerLoadingCharts data={response} />
           {/* Export Button - positioned at bottom of charts */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, px: 0 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
             <ExportOptions
               reportData={response}
               chartData={chartData}
@@ -428,7 +494,17 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
       {isContainerMonthWiseReport && (
         <Box sx={{ width: '100%', m: 0, p: 0 }}>
           <ContainerMonthWiseCharts data={response} />
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, px: 0 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
             <ExportOptions
               reportData={response}
               chartData={chartData}
@@ -444,7 +520,95 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
       {isContainerClientWiseReport && (
         <Box sx={{ width: '100%', m: 0, p: 0 }}>
           <ContainerClientWiseCharts data={response} />
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, px: 0 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
+      {/* Custom Charts for Date Wise Grading Report */}
+      {isDateWiseGradingReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <DateWiseGradingCharts data={chartResponse} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
+      {/* Custom Charts for Grading Summary Report */}
+      {isGradingSummaryReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <GradingSummaryCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
+      {/* Custom Charts for Daily Grading Report */}
+      {isDailyGradingReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <DailyGradingReportCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
             <ExportOptions
               reportData={response}
               chartData={chartData}
@@ -502,7 +666,23 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 1.5 }, alignItems: 'center', justifyContent: 'center' }}>
             {recordsets.map((_, idx) => {
               const containerTableNames = ['Client-wise Container Loading', 'Monthly Container Trend 2025']
-              const tableNames = isContainerLoadingReport ? containerTableNames : []
+              const gradingTableNames = ['Thickness Summary', 'Detailed Grading Data'] // Swapped order
+              const dailyGradingTableNames = [
+                'Europe Norm Details',
+                'South East Asia Norm Details', 
+                'Europe Summary',
+                'South East Asia Summary',
+                'India Norm Details',
+                'India Summary',
+                'Grading Norms Summary'
+              ]
+              const tableNames = isContainerLoadingReport 
+                ? containerTableNames 
+                : isDateWiseGradingReport 
+                  ? gradingTableNames 
+                  : isDailyGradingReport
+                    ? dailyGradingTableNames
+                    : []
               return (
               <Button
                 key={idx}
@@ -514,17 +694,27 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                     fontWeight: 700, 
                     letterSpacing: { xs: 0.3, md: 0.5 },
                     borderRadius: { xs: 2, md: 3 },
-                    px: { xs: 2, sm: 3, md: 4 },
+                    px: { xs: 2, sm: 2.5, md: 3 },
                     py: { xs: 1, sm: 1.25, md: 1.5 },
-                    background: idx === 0 ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : 'linear-gradient(135deg, #ec4899, #db2777)',
-                    boxShadow: '0 8px 24px rgba(139, 92, 246, 0.3)',
+                    background: isDailyGradingReport 
+                      ? 'linear-gradient(135deg, #ec4899, #db2777)'
+                      : idx % 2 === 0 
+                        ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' 
+                        : 'linear-gradient(135deg, #ec4899, #db2777)',
+                    boxShadow: isDailyGradingReport 
+                      ? '0 8px 24px rgba(236, 72, 153, 0.3)'
+                      : '0 8px 24px rgba(139, 92, 246, 0.3)',
                     border: 'none',
                     color: 'white',
-                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                    fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' },
                     transition: 'all 0.3s ease-in-out',
                     minWidth: { xs: 'auto', sm: 'auto' },
                     '&:hover': {
-                      background: idx === 0 ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'linear-gradient(135deg, #db2777, #be185d)',
+                      background: isDailyGradingReport
+                        ? 'linear-gradient(135deg, #db2777, #be185d)'
+                        : idx % 2 === 0 
+                          ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' 
+                          : 'linear-gradient(135deg, #db2777, #be185d)',
                       boxShadow: '0 12px 32px rgba(139, 92, 246, 0.4)',
                       transform: 'translateY(-2px)'
                     },
@@ -549,8 +739,24 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
       ) : (
         recordsets.map((rows, idx) => {
           const containerTableNames = ['Client-wise Container Loading', 'Monthly Container Trend 2025']
-          const tableNames = isContainerLoadingReport ? containerTableNames : []
-          const tableTitle = isContainerLoadingReport ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
+          const gradingTableNames = ['Thickness Summary', 'Detailed Grading Data'] // Swapped order
+          const dailyGradingTableNames = [
+            'Europe Norm Details',
+            'South East Asia Norm Details', 
+            'Europe Summary',
+            'South East Asia Summary',
+            'India Norm Details',
+            'India Summary',
+            'Grading Norms Summary'
+          ]
+          const tableNames = isContainerLoadingReport 
+            ? containerTableNames 
+            : isDateWiseGradingReport 
+              ? gradingTableNames 
+              : isDailyGradingReport
+                ? dailyGradingTableNames
+                : []
+          const tableTitle = (isContainerLoadingReport || isDateWiseGradingReport || isDailyGradingReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
           
           return (
           <Box key={idx} ref={(el) => (sectionRefs[idx].current = el)} sx={{ mb: 0, px: 0, width: '100%' }}>
@@ -558,13 +764,6 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
           </Box>
           )
         })
-      )}
-      
-      {/* Auto Charts for other reports */}
-      {!isContainerLoadingReport && !isContainerMonthWiseReport && !isContainerClientWiseReport && (
-        <Box sx={{ width: '100%', m: 0, p: 0 }}>
-          <AutoCharts rows={first} />
-        </Box>
       )}
       
       {/* Scroll to Top Button */}

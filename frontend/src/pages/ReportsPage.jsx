@@ -15,12 +15,18 @@ export default function ReportsPage() {
   const reports = useMemo(() => [
     { key: 'container_loading_report', label: 'Container Loading', needsDateRange: false },
     { key: 'container_month_wise', label: 'Container Month Wise', needsDateRange: false },
+    { key: 'date_wise_grading', label: 'Date Wise Grading', needsDateRange: true },
+    { key: 'grading_summary', label: 'Grading Summary', needsDateRange: true },
+    { key: 'daily_grading_report', label: 'Daily Grading Report', needsDateRange: true },
   ], [])
 
   function accentFor(key) {
     const map = {
       container_loading_report: { main: '#f59e0b', alt: '#ef4444', Icon: AnalyticsIcon },
       container_month_wise: { main: '#8b5cf6', alt: '#ec4899', Icon: TrendingUpIcon },
+      date_wise_grading: { main: '#10b981', alt: '#06b6d4', Icon: AnalyticsIcon },
+      grading_summary: { main: '#3b82f6', alt: '#8b5cf6', Icon: TrendingUpIcon },
+      daily_grading_report: { main: '#ec4899', alt: '#f43f5e', Icon: AnalyticsIcon },
     }
     return map[key] || { main: '#f59e0b', alt: '#ef4444', Icon: AnalyticsIcon }
   }

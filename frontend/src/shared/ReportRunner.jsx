@@ -3,6 +3,8 @@ import { Box, Button, Paper, Stack, Typography, FormControl, InputLabel, Select,
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import dayjs from 'dayjs'
 import ReportViewer from './ReportViewer'
 
 export default function ReportRunner({ selectedReport }) {
@@ -12,12 +14,17 @@ export default function ReportRunner({ selectedReport }) {
   const [year, setYear] = useState(new Date().getFullYear())
   const [client, setClient] = useState('')
   const [clients, setClients] = useState([])
+  const [fromDate, setFromDate] = useState(null)
+  const [toDate, setToDate] = useState(null)
 
   const reportTitle = useMemo(() => {
     const names = {
       container_loading_report: 'Container Loading',
       container_month_wise: 'Container Month Wise',
       container_client_wise: 'Container Client Wise',
+      date_wise_grading: 'Date Wise Grading',
+      grading_summary: 'Grading Summary',
+      daily_grading_report: 'Daily Grading Report',
     }
     return names[selectedReport] || 'Result'
   }, [selectedReport])
@@ -27,6 +34,9 @@ export default function ReportRunner({ selectedReport }) {
       container_loading_report: 'proc_get_summary_container',
       container_month_wise: 'proc_getcontainersumyear',
       container_client_wise: 'proc_getcontainerclientwise',
+      date_wise_grading: 'proc_gradesearchreport_date22',
+      grading_summary: 'proc_gradesearchreport_grade22',
+      daily_grading_report: 'proc_gradesearch_partsheet_Norm',
     }
   }, [])
 
@@ -66,6 +76,21 @@ export default function ReportRunner({ selectedReport }) {
         year: year,
         client: client || ''
       }
+    } else if (selectedReport === 'date_wise_grading') {
+      return {
+        from_date: fromDate ? dayjs(fromDate).format('YYYY-MM-DD') : '',
+        to_date: toDate ? dayjs(toDate).format('YYYY-MM-DD') : ''
+      }
+    } else if (selectedReport === 'grading_summary') {
+      return {
+        from_date: fromDate ? dayjs(fromDate).format('YYYY-MM-DD') : '',
+        to_date: toDate ? dayjs(toDate).format('YYYY-MM-DD') : ''
+      }
+    } else if (selectedReport === 'daily_grading_report') {
+      return {
+        from_date: fromDate ? dayjs(fromDate).format('YYYY-MM-DD') : '',
+        to_date: toDate ? dayjs(toDate).format('YYYY-MM-DD') : ''
+      }
     }
     return {}
   }
@@ -98,7 +123,17 @@ export default function ReportRunner({ selectedReport }) {
         const msg = [json?.error, json?.details].filter(Boolean).join(' - ') || 'Request failed'
         throw new Error(msg)
       }
-      setData(json)
+      // Add metadata to the response
+      const dataWithMeta = {
+        ...json,
+        metadata: {
+          fromDate: fromDate ? dayjs(fromDate).format('DD/MM/YYYY') : null,
+          toDate: toDate ? dayjs(toDate).format('DD/MM/YYYY') : null,
+          year: year,
+          client: client
+        }
+      }
+      setData(dataWithMeta)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -136,6 +171,8 @@ export default function ReportRunner({ selectedReport }) {
                   ? 'Select year to view monthly container loading data'
                   : selectedReport === 'container_client_wise'
                   ? 'Select year and client to view detailed container data'
+                  : selectedReport === 'date_wise_grading'
+                  ? 'Select date range to view grading data by thickness'
                   : 'Generate your report'
                 }
               </Typography>
@@ -192,6 +229,36 @@ export default function ReportRunner({ selectedReport }) {
                     ))}
                   </Select>
                 </FormControl>
+              </Box>
+            )}
+
+            {/* Date Range Filters for Date Wise Grading, Grading Summary, and Daily Grading Report */}
+            {(selectedReport === 'date_wise_grading' || selectedReport === 'grading_summary' || selectedReport === 'daily_grading_report') && (
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <DatePicker 
+                  label="From Date" 
+                  value={fromDate} 
+                  onChange={(val) => setFromDate(val)} 
+                  format="DD/MM/YYYY"
+                  slotProps={{ 
+                    textField: { 
+                      size: 'medium',
+                      sx: { minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: 2 } }
+                    } 
+                  }} 
+                />
+                <DatePicker 
+                  label="To Date" 
+                  value={toDate} 
+                  onChange={(val) => setToDate(val)} 
+                  format="DD/MM/YYYY"
+                  slotProps={{ 
+                    textField: { 
+                      size: 'medium',
+                      sx: { minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: 2 } }
+                    } 
+                  }} 
+                />
               </Box>
             )}
 

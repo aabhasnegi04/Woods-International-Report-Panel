@@ -60,20 +60,29 @@ const ExportOptions = ({
         startIcon={<Download />}
         sx={{
           minWidth: 'auto',
-          px: 2,
-          py: 1,
-          fontWeight: 600,
-          background: (theme) =>
-            `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
+          px: 3,
+          py: 1.5,
+          fontWeight: 700,
+          fontSize: { xs: '0.875rem', md: '1rem' },
+          textTransform: 'none',
+          borderRadius: 2,
+          background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+          boxShadow: '0 8px 24px rgba(139, 92, 246, 0.4)',
+          border: 'none',
+          color: 'white',
+          transition: 'all 0.3s ease-in-out',
           '&:hover': {
-            background: (theme) =>
-              `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.secondary.dark} 90%)`,
-            transform: 'translateY(-1px)',
-            boxShadow: (theme) => theme.shadows[8]
+            background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 12px 32px rgba(139, 92, 246, 0.5)'
+          },
+          '&:active': {
+            transform: 'translateY(0)'
           },
           '&:disabled': {
-            background: (theme) => theme.palette.action.disabledBackground,
-            color: (theme) => theme.palette.action.disabled
+            background: '#e2e8f0',
+            color: '#94a3b8',
+            boxShadow: 'none'
           }
         }}
       >
