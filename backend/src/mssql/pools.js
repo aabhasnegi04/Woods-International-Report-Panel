@@ -9,8 +9,9 @@ function getConfigFromEnv(prefix) {
     password: process.env[`${prefix}_PASSWORD`],
     database: process.env[`${prefix}_DATABASE`],
     options: {
-      encrypt: true,
-      trustServerCertificate: true
+      encrypt: false,
+      trustServerCertificate: true,
+      enableArithAbort: true
     },
     pool: {
       max: 10,
