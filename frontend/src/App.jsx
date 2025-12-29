@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import SidebarLayout from './layout/SidebarLayout'
 import Landing from './pages/Landing'
 import ReportsPage from './pages/ReportsPage'
+import LogsPage from './pages/LogsPage'
 import LoginPage from './pages/LoginPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { createAppTheme } from './theme/theme'
@@ -27,6 +28,11 @@ function AppRoutes({ mode, onToggleMode }) {
             <Route path="/reports" element={
               <ProtectedRoute>
                 <ReportsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/logs" element={
+              <ProtectedRoute>
+                <LogsPage />
               </ProtectedRoute>
             } />
           </Routes>

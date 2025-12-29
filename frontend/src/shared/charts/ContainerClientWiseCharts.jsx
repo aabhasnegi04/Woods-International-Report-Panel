@@ -65,7 +65,7 @@ export default function ContainerClientWiseCharts({ data }) {
 
       <Box sx={{ mb: 3, px: 0 }}>
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#047857', mb: 2, textAlign: 'center' }}>📈 Daily Quantity Trend</Typography>
-        <Paper sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 0, border: '2px solid #a7f3d0', background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', boxShadow: '0 8px 24px rgba(4, 120, 87, 0.2)', outline: 'none', '&:focus': { outline: 'none' }, '&:focus-visible': { outline: 'none' } }}>
+        <Paper sx={{ p: 0, borderRadius: 0, border: '2px solid #a7f3d0', background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', boxShadow: '0 8px 24px rgba(4, 120, 87, 0.2)', outline: 'none', '&:focus': { outline: 'none' }, '&:focus-visible': { outline: 'none' } }}>
           <Box sx={{ width: '100%', height: { xs: 350, md: 400 } }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dailyData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -82,7 +82,7 @@ export default function ContainerClientWiseCharts({ data }) {
 
       <Box sx={{ px: 0 }}>
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0891b2', mb: 2, textAlign: 'center' }}>📊 Containers by Date</Typography>
-        <Paper sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 0, border: '2px solid #a5f3fc', background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)', boxShadow: '0 8px 24px rgba(8, 145, 178, 0.2)', outline: 'none', '&:focus': { outline: 'none' }, '&:focus-visible': { outline: 'none' } }}>
+        <Paper sx={{ p: 0, borderRadius: 0, border: '2px solid #a5f3fc', background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)', boxShadow: '0 8px 24px rgba(8, 145, 178, 0.2)', outline: 'none', '&:focus': { outline: 'none' }, '&:focus-visible': { outline: 'none' } }}>
           <Box sx={{ width: '100%', height: { xs: 300, md: 350 } }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>

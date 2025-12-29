@@ -25,6 +25,10 @@ export default function ReportRunner({ selectedReport }) {
       date_wise_grading: 'Date Wise Grading',
       grading_summary: 'Grading Summary',
       daily_grading_report: 'Daily Grading Report',
+      current_log_stock: 'Current Log Stock',
+      log_closing_stock: 'Log Closing Stock - As On Date',
+      log_buying_summary: 'Log Buying Summary Month Wise',
+      log_invoice_summary: 'Log Invoice Summary',
     }
     return names[selectedReport] || 'Result'
   }, [selectedReport])
@@ -37,6 +41,10 @@ export default function ReportRunner({ selectedReport }) {
       date_wise_grading: 'proc_gradesearchreport_date22',
       grading_summary: 'proc_gradesearchreport_grade22',
       daily_grading_report: 'proc_gradesearch_partsheet_Norm',
+      current_log_stock: 'proc_rp_logstocknotcuttedx',
+      log_closing_stock: 'proc_rp_logstocknotcuttedX2',
+      log_buying_summary: 'proc_getlogbuyingsumyear',
+      log_invoice_summary: 'proc_getloginvcoicesumyear',
     }
   }, [])
 
@@ -91,6 +99,16 @@ export default function ReportRunner({ selectedReport }) {
         from_date: fromDate ? dayjs(fromDate).format('YYYY-MM-DD') : '',
         to_date: toDate ? dayjs(toDate).format('YYYY-MM-DD') : ''
       }
+    } else if (selectedReport === 'current_log_stock') {
+      return {}
+    } else if (selectedReport === 'log_closing_stock') {
+      return {
+        dateofstk: fromDate ? dayjs(fromDate).format('YYYY-MM-DD') : ''
+      }
+    } else if (selectedReport === 'log_buying_summary') {
+      return { year: year }
+    } else if (selectedReport === 'log_invoice_summary') {
+      return { year: year }
     }
     return {}
   }
@@ -143,8 +161,8 @@ export default function ReportRunner({ selectedReport }) {
 
   return (
     <Stack spacing={3} sx={{ width: '100%', px: 0, m: 0 }}>
-      {/* Hide filter section for container_loading_report after data is loaded */}
-      {!(selectedReport === 'container_loading_report' && data) && (
+      {/* Hide filter section for container_loading_report and current_log_stock after data is loaded */}
+      {!(selectedReport === 'container_loading_report' && data) && !(selectedReport === 'current_log_stock' && data) && (
       <Paper sx={{ 
         p: { xs: 2, md: 3 }, 
         borderRadius: 0, 
@@ -173,13 +191,21 @@ export default function ReportRunner({ selectedReport }) {
                   ? 'Select year and client to view detailed container data'
                   : selectedReport === 'date_wise_grading'
                   ? 'Select date range to view grading data by thickness'
+                  : selectedReport === 'current_log_stock'
+                  ? 'Current log stock analysis by forest, quality, and origin'
+                  : selectedReport === 'log_closing_stock'
+                  ? 'Select a specific date to view log closing stock as on that date'
+                  : selectedReport === 'log_buying_summary'
+                  ? 'Select year to view monthly log buying summary and trends'
+                  : selectedReport === 'log_invoice_summary'
+                  ? 'Select year to view monthly log invoice summary with values and rates'
                   : 'Generate your report'
                 }
               </Typography>
             </Box>
 
-            {/* Year Filter for Container Month Wise */}
-            {selectedReport === 'container_month_wise' && (
+            {/* Year Filter for Container Month Wise, Log Buying Summary, and Log Invoice Summary */}
+            {(selectedReport === 'container_month_wise' || selectedReport === 'log_buying_summary' || selectedReport === 'log_invoice_summary') && (
               <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <FormControl size="medium" sx={{ minWidth: 200 }}>
                   <InputLabel>Select Year</InputLabel>
@@ -256,6 +282,24 @@ export default function ReportRunner({ selectedReport }) {
                     textField: { 
                       size: 'medium',
                       sx: { minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: 2 } }
+                    } 
+                  }} 
+                />
+              </Box>
+            )}
+
+            {/* Single Date Filter for Log Closing Stock */}
+            {selectedReport === 'log_closing_stock' && (
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <DatePicker 
+                  label="As On Date" 
+                  value={fromDate} 
+                  onChange={(val) => setFromDate(val)} 
+                  format="DD/MM/YYYY"
+                  slotProps={{ 
+                    textField: { 
+                      size: 'medium',
+                      sx: { minWidth: 250, '& .MuiOutlinedInput-root': { borderRadius: 2 } }
                     } 
                   }} 
                 />

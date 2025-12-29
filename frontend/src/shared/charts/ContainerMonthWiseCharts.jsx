@@ -88,7 +88,7 @@ export default function ContainerMonthWiseCharts({ data, year }) {
           📊 Monthly Breakdown
         </Typography>
         <Paper sx={{ 
-          p: { xs: 1.5, sm: 2 }, 
+          p: 0, 
           borderRadius: 0, 
           border: '2px solid #e9d5ff',
           overflowX: 'auto',
@@ -148,7 +148,7 @@ export default function ContainerMonthWiseCharts({ data, year }) {
           📈 Trend Analysis
         </Typography>
         <Paper sx={{ 
-          p: { xs: 1.5, sm: 2 }, 
+          p: 0, 
           borderRadius: 0, 
           border: '2px solid #fecdd3',
           overflowX: 'auto',

@@ -7,6 +7,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import AnalyticsIcon from '@mui/icons-material/Analytics'
+import ForestIcon from '@mui/icons-material/Forest'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -22,12 +23,14 @@ export default function SidebarLayout({ children, mode, onToggleMode }) {
   const navItems = useMemo(() => ([
     { to: '/', label: 'Dashboard', icon: <DashboardIcon /> },
     { to: '/reports', label: 'Reports', icon: <AnalyticsIcon /> },
+    { to: '/logs', label: 'Logs', icon: <ForestIcon /> },
   ]), [])
 
 
 
   const accent = useMemo(() => {
     if (location.pathname.startsWith('/reports')) return { main: '#8B6F47', alt: '#D4A574' }
+    if (location.pathname.startsWith('/logs')) return { main: '#8B4513', alt: '#A0522D' }
     // Dashboard/default: use wood colors
     return { main: '#8B6F47', alt: '#D4A574' }
   }, [location.pathname])

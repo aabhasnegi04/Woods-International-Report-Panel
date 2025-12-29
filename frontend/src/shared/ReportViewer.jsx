@@ -9,6 +9,10 @@ import ContainerClientWiseCharts from './charts/ContainerClientWiseCharts'
 import DateWiseGradingCharts from './charts/DateWiseGradingCharts'
 import GradingSummaryCharts from './charts/GradingSummaryCharts'
 import DailyGradingReportCharts from './charts/DailyGradingReportCharts'
+import CurrentLogStockCharts from './charts/CurrentLogStockCharts'
+import LogClosingStockCharts from './charts/LogClosingStockCharts'
+import LogBuyingSummaryCharts from './charts/LogBuyingSummaryCharts'
+import LogInvoiceSummaryCharts from './charts/LogInvoiceSummaryCharts'
 import ExportOptions from './ExportOptions'
 import { exportData } from './exportUtils'
 
@@ -79,7 +83,45 @@ function ResultTable({ rows, title }) {
       'GRADE-3P': 'Grade 3 %',
       'GRADE-4P': 'Grade 4 %',
       'GRADE-5P': 'Grade 5 %',
-      'GRADE-6P': 'Grade 6 %'
+      'GRADE-6P': 'Grade 6 %',
+      // Current Log Stock columns
+      'FOREST': 'Forest',
+      'QUALITY': 'Quality',
+      'LOG_COUNT': 'Log Count',
+      'CBM_BORDEREAU': 'CBM Bordereau',
+      'BORD_ACTUAL_CBM': 'Actual CBM',
+      'ORIGIN': 'Origin',
+      'AAC': 'AAC',
+      'LOADING_PLACE': 'Loading Place',
+      'COMPANY': 'Company',
+      'CERTIFICATE': 'Certificate',
+      'SRNO': 'Sr No',
+      'CHALAN_NO_UNIQUENO': 'Chalan Unique No',
+      'RECEPTION_REF': 'Reception Ref',
+      'LOG_UNIQUE': 'Log Unique',
+      'LOGNO_VERTUAL': 'Virtual Log No',
+      'LOGNO': 'Actual Log No',
+      'BOARD_DIA_MEAN': 'Board Diameter Mean',
+      'BORD_ACTUAL_LENGTH': 'Actual Length',
+      'BORD_ACTUAL_DIA': 'Actual Diameter',
+      'RATE': 'Rate',
+      'RATEMINUS': 'Rate Minus',
+      'DIAMINUS': 'Dia Minus',
+      'LONGMINUS': 'Long Minus',
+      'ESSENCE': 'Essence',
+      'CHALAN_NO': 'Chalan No',
+      'CHALAN_DATE': 'Chalan Date',
+      'RECEIVING_DATE': 'Receiving Date',
+      'CONTRACT_NO': 'Contract No',
+      'SELLERNAME': 'Seller Name',
+      'BUYER_NAME': 'Buyer Name',
+      // Log Invoice Summary columns
+      'LOADING_MONTH': 'Loading Month',
+      'MONTHS': 'Month',
+      'NO_OF_LOGS': 'Number of Logs',
+      'INVOICE_CBM': 'Invoice CBM',
+      'TOTAL_VALUE': 'Total Value',
+      'AVERAGE_RATE': 'Average Rate'
     }
     return columnMap[columnName] || columnName
   }
@@ -396,6 +438,10 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
   const isDateWiseGradingReport = reportTitle === 'Date Wise Grading'
   const isGradingSummaryReport = reportTitle === 'Grading Summary'
   const isDailyGradingReport = reportTitle === 'Daily Grading Report'
+  const isCurrentLogStockReport = reportTitle === 'Current Log Stock'
+  const isLogClosingStockReport = reportTitle === 'Log Closing Stock - As On Date'
+  const isLogBuyingSummaryReport = reportTitle === 'Log Buying Summary Month Wise'
+  const isLogInvoiceSummaryReport = reportTitle === 'Log Invoice Summary'
   
   // Swap recordsets for Date Wise Grading (show Thickness Summary first, then Detailed Data)
   const recordsets = useMemo(() => {
@@ -620,6 +666,110 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
         </Box>
       )}
       
+      {/* Custom Charts for Current Log Stock Report */}
+      {isCurrentLogStockReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <CurrentLogStockCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
+      {/* Custom Charts for Log Closing Stock Report */}
+      {isLogClosingStockReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <LogClosingStockCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
+      {/* Custom Charts for Log Buying Summary Report */}
+      {isLogBuyingSummaryReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <LogBuyingSummaryCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
+      {/* Custom Charts for Log Invoice Summary Report */}
+      {isLogInvoiceSummaryReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <LogInvoiceSummaryCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
       {/* Table Navigation */}
       {recordsets.length > 1 && (
         <Paper sx={{ 
@@ -676,13 +826,45 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                 'India Summary',
                 'Grading Norms Summary'
               ]
+              const currentLogStockTableNames = [
+                'Forest & Quality Summary',
+                'Forest Summary', 
+                'Forest & Origin Summary',
+                'Forest & AAC Summary',
+                'Forest, Origin & Loading Place',
+                'Company & Certificate Summary',
+                'Detailed Log Records'
+              ]
+              const logClosingStockTableNames = [
+                'Historical Forest & Quality Summary',
+                'Historical Forest Summary', 
+                'Historical Forest & Origin Summary',
+                'Historical Forest & AAC Summary',
+                'Historical Forest, Origin & Loading Place',
+                'Historical Company & Certificate Summary',
+                'Historical Detailed Log Records'
+              ]
+              const logBuyingSummaryTableNames = [
+                'Monthly Log Buying Summary'
+              ]
+              const logInvoiceSummaryTableNames = [
+                'Monthly Log Invoice Summary'
+              ]
               const tableNames = isContainerLoadingReport 
                 ? containerTableNames 
                 : isDateWiseGradingReport 
                   ? gradingTableNames 
                   : isDailyGradingReport
                     ? dailyGradingTableNames
-                    : []
+                    : isCurrentLogStockReport
+                      ? currentLogStockTableNames
+                      : isLogClosingStockReport
+                        ? logClosingStockTableNames
+                        : isLogBuyingSummaryReport
+                          ? logBuyingSummaryTableNames
+                          : isLogInvoiceSummaryReport
+                            ? logInvoiceSummaryTableNames
+                            : []
               return (
               <Button
                 key={idx}
@@ -698,12 +880,28 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                     py: { xs: 1, sm: 1.25, md: 1.5 },
                     background: isDailyGradingReport 
                       ? 'linear-gradient(135deg, #ec4899, #db2777)'
-                      : idx % 2 === 0 
-                        ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' 
-                        : 'linear-gradient(135deg, #ec4899, #db2777)',
+                      : isCurrentLogStockReport
+                        ? 'linear-gradient(135deg, #8B4513, #A0522D)'
+                        : isLogClosingStockReport
+                          ? 'linear-gradient(135deg, #CD853F, #DEB887)'
+                          : isLogBuyingSummaryReport
+                            ? 'linear-gradient(135deg, #059669, #10b981)'
+                            : isLogInvoiceSummaryReport
+                              ? 'linear-gradient(135deg, #1d4ed8, #2563eb)'
+                              : idx % 2 === 0 
+                                ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' 
+                                : 'linear-gradient(135deg, #ec4899, #db2777)',
                     boxShadow: isDailyGradingReport 
                       ? '0 8px 24px rgba(236, 72, 153, 0.3)'
-                      : '0 8px 24px rgba(139, 92, 246, 0.3)',
+                      : isCurrentLogStockReport
+                        ? '0 8px 24px rgba(139, 69, 19, 0.3)'
+                        : isLogClosingStockReport
+                          ? '0 8px 24px rgba(205, 133, 63, 0.3)'
+                          : isLogBuyingSummaryReport
+                            ? '0 8px 24px rgba(5, 150, 105, 0.3)'
+                            : isLogInvoiceSummaryReport
+                              ? '0 8px 24px rgba(29, 78, 216, 0.3)'
+                              : '0 8px 24px rgba(139, 92, 246, 0.3)',
                     border: 'none',
                     color: 'white',
                     fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' },
@@ -712,9 +910,17 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                     '&:hover': {
                       background: isDailyGradingReport
                         ? 'linear-gradient(135deg, #db2777, #be185d)'
-                        : idx % 2 === 0 
-                          ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' 
-                          : 'linear-gradient(135deg, #db2777, #be185d)',
+                        : isCurrentLogStockReport
+                          ? 'linear-gradient(135deg, #A0522D, #8B4513)'
+                          : isLogClosingStockReport
+                            ? 'linear-gradient(135deg, #DEB887, #CD853F)'
+                            : isLogBuyingSummaryReport
+                              ? 'linear-gradient(135deg, #10b981, #059669)'
+                              : isLogInvoiceSummaryReport
+                                ? 'linear-gradient(135deg, #2563eb, #1d4ed8)'
+                                : idx % 2 === 0 
+                                  ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' 
+                                  : 'linear-gradient(135deg, #db2777, #be185d)',
                       boxShadow: '0 12px 32px rgba(139, 92, 246, 0.4)',
                       transform: 'translateY(-2px)'
                     },
@@ -749,14 +955,46 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
             'India Summary',
             'Grading Norms Summary'
           ]
+          const currentLogStockTableNames = [
+            'Forest & Quality Summary',
+            'Forest Summary', 
+            'Forest & Origin Summary',
+            'Forest & AAC Summary',
+            'Forest, Origin & Loading Place',
+            'Company & Certificate Summary',
+            'Detailed Log Records'
+          ]
+          const logClosingStockTableNames = [
+            'Historical Forest & Quality Summary',
+            'Historical Forest Summary', 
+            'Historical Forest & Origin Summary',
+            'Historical Forest & AAC Summary',
+            'Historical Forest, Origin & Loading Place',
+            'Historical Company & Certificate Summary',
+            'Historical Detailed Log Records'
+          ]
+          const logBuyingSummaryTableNames = [
+            'Monthly Log Buying Summary'
+          ]
+          const logInvoiceSummaryTableNames = [
+            'Monthly Log Invoice Summary'
+          ]
           const tableNames = isContainerLoadingReport 
             ? containerTableNames 
             : isDateWiseGradingReport 
               ? gradingTableNames 
               : isDailyGradingReport
                 ? dailyGradingTableNames
-                : []
-          const tableTitle = (isContainerLoadingReport || isDateWiseGradingReport || isDailyGradingReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
+                : isCurrentLogStockReport
+                  ? currentLogStockTableNames
+                  : isLogClosingStockReport
+                    ? logClosingStockTableNames
+                    : isLogBuyingSummaryReport
+                      ? logBuyingSummaryTableNames
+                      : isLogInvoiceSummaryReport
+                        ? logInvoiceSummaryTableNames
+                        : []
+          const tableTitle = (isContainerLoadingReport || isDateWiseGradingReport || isDailyGradingReport || isCurrentLogStockReport || isLogClosingStockReport || isLogBuyingSummaryReport || isLogInvoiceSummaryReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
           
           return (
           <Box key={idx} ref={(el) => (sectionRefs[idx].current = el)} sx={{ mb: 0, px: 0, width: '100%' }}>

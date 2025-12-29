@@ -93,7 +93,7 @@ export default function ContainerLoadingCharts({ data }) {
           👥 Client-wise: MTD vs Previous Month Containers
         </Typography>
         <Paper sx={{ 
-          p: { xs: 1.5, sm: 2 }, 
+          p: 0, 
           borderRadius: 0, 
           border: 'none', 
           overflowX: 'auto', 
@@ -154,7 +154,7 @@ export default function ContainerLoadingCharts({ data }) {
           📈 Loading Month - No. of Containers 2025
         </Typography>
         <Paper sx={{ 
-          p: { xs: 1.5, sm: 2 }, 
+          p: 0, 
           borderRadius: 0, 
           border: 'none',
           overflowX: 'auto',

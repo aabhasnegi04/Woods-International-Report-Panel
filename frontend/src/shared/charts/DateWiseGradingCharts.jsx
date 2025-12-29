@@ -111,7 +111,7 @@ export default function DateWiseGradingCharts({ data }) {
           📊 Thickness vs Total CBM
         </Typography>
         <Paper sx={{ 
-          p: { xs: 1.5, sm: 2 }, 
+          p: 0, 
           borderRadius: 0, 
           border: '2px solid #a7f3d0',
           overflowX: 'auto',
