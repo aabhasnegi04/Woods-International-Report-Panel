@@ -29,6 +29,7 @@ export default function ReportRunner({ selectedReport }) {
       log_closing_stock: 'Log Closing Stock - As On Date',
       log_buying_summary: 'Log Buying Summary Month Wise',
       log_invoice_summary: 'Log Invoice Summary',
+      log_cutting_summary: 'Log Cutting Summary',
     }
     return names[selectedReport] || 'Result'
   }, [selectedReport])
@@ -45,6 +46,7 @@ export default function ReportRunner({ selectedReport }) {
       log_closing_stock: 'proc_rp_logstocknotcuttedX2',
       log_buying_summary: 'proc_getlogbuyingsumyear',
       log_invoice_summary: 'proc_getloginvcoicesumyear',
+      log_cutting_summary: 'proc_getlogcuttingsumyear',
     }
   }, [])
 
@@ -108,6 +110,8 @@ export default function ReportRunner({ selectedReport }) {
     } else if (selectedReport === 'log_buying_summary') {
       return { year: year }
     } else if (selectedReport === 'log_invoice_summary') {
+      return { year: year }
+    } else if (selectedReport === 'log_cutting_summary') {
       return { year: year }
     }
     return {}
@@ -199,13 +203,15 @@ export default function ReportRunner({ selectedReport }) {
                   ? 'Select year to view monthly log buying summary and trends'
                   : selectedReport === 'log_invoice_summary'
                   ? 'Select year to view monthly log invoice summary with values and rates'
+                  : selectedReport === 'log_cutting_summary'
+                  ? 'Select year to view monthly log cutting summary with gain/loss analysis'
                   : 'Generate your report'
                 }
               </Typography>
             </Box>
 
-            {/* Year Filter for Container Month Wise, Log Buying Summary, and Log Invoice Summary */}
-            {(selectedReport === 'container_month_wise' || selectedReport === 'log_buying_summary' || selectedReport === 'log_invoice_summary') && (
+            {/* Year Filter for Container Month Wise, Log Buying Summary, Log Invoice Summary, and Log Cutting Summary */}
+            {(selectedReport === 'container_month_wise' || selectedReport === 'log_buying_summary' || selectedReport === 'log_invoice_summary' || selectedReport === 'log_cutting_summary') && (
               <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <FormControl size="medium" sx={{ minWidth: 200 }}>
                   <InputLabel>Select Year</InputLabel>

@@ -15,6 +15,7 @@ export default function LogsPage() {
     { key: 'log_closing_stock', label: 'Log Closing Stock - As On Date', needsDateRange: true },
     { key: 'log_buying_summary', label: 'Log Buying Summary Month Wise', needsDateRange: false },
     { key: 'log_invoice_summary', label: 'Log Invoice Summary', needsDateRange: false },
+    { key: 'log_cutting_summary', label: 'Log Cutting Summary', needsDateRange: false },
     // Add more log reports here in the future
   ], [])
 

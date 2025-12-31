@@ -13,11 +13,18 @@ import CurrentLogStockCharts from './charts/CurrentLogStockCharts'
 import LogClosingStockCharts from './charts/LogClosingStockCharts'
 import LogBuyingSummaryCharts from './charts/LogBuyingSummaryCharts'
 import LogInvoiceSummaryCharts from './charts/LogInvoiceSummaryCharts'
+import LogCuttingSummaryCharts from './charts/LogCuttingSummaryCharts'
 import ExportOptions from './ExportOptions'
 import { exportData } from './exportUtils'
 
 function ResultTable({ rows, title }) {
-  const keys = rows.length ? Object.keys(rows[0] || {}) : []
+  const allKeys = rows.length ? Object.keys(rows[0] || {}) : []
+  
+  // Filter out only MONTHS column for Log Cutting Summary
+  const keys = title === 'Monthly Log Cutting Summary' 
+    ? allKeys.filter(k => k !== 'MONTHS')
+    : allKeys
+    
   const { fontSize, cellPadding } = getTableDensity(keys.length)
   const [sort, setSort] = useState({ key: '', dir: 'asc' })
   const minTableWidth = Math.max(680, keys.length * Math.max(110, fontSize * 9))
@@ -115,13 +122,15 @@ function ResultTable({ rows, title }) {
       'CONTRACT_NO': 'Contract No',
       'SELLERNAME': 'Seller Name',
       'BUYER_NAME': 'Buyer Name',
-      // Log Invoice Summary columns
-      'LOADING_MONTH': 'Loading Month',
-      'MONTHS': 'Month',
+      // Log Cutting Summary columns
+      'LOGCUTTING_MONTH': 'Cutting Month',
       'NO_OF_LOGS': 'Number of Logs',
-      'INVOICE_CBM': 'Invoice CBM',
-      'TOTAL_VALUE': 'Total Value',
-      'AVERAGE_RATE': 'Average Rate'
+      'CBM_INPUT': 'CBM Input',
+      'CBM_OUTPUT': 'CBM Output',
+      'GAINLOSS': 'Gain/Loss',
+      'GAINLOSS_PERCENT': 'Gain/Loss %',
+      'GAIN_LOSS': 'Gain/Loss',
+      'GAIN_LOSS_PERCENTAGE': 'Gain/Loss %',
     }
     return columnMap[columnName] || columnName
   }
@@ -409,9 +418,33 @@ function ResultTable({ rows, title }) {
                             }
                           }
                           
-                          // Format currency for numbers > 1000
+                          // Format percentage columns
+                          if (/^(gainloss_percent|gain_loss_percentage)$/i.test(k)) {
+                            const value = parseFloat(row[k] || 0)
+                            return `${value.toFixed(2)}%`
+                          }
+                          
+                          // Format currency only for specific currency columns
                           if (typeof row[k] === 'number' && row[k] > 1000) {
-                            return `₹${row[k].toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            // Only format as currency if column name suggests it's a monetary value
+                            const isCurrencyColumn = /^(amount|price|cost|value|rate|payment|salary|wage|fee|charge|total_amount|net_amount|gross_amount|total_value|average_rate)$/i.test(k) ||
+                                                   k.toLowerCase().includes('amount') ||
+                                                   k.toLowerCase().includes('price') ||
+                                                   k.toLowerCase().includes('cost') ||
+                                                   k.toLowerCase().includes('value') ||
+                                                   k.toLowerCase().includes('rate') ||
+                                                   k.toLowerCase().includes('payment')
+                            
+                            if (isCurrencyColumn) {
+                              return `₹${row[k].toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            } else {
+                              // Format as regular number with commas for readability (no currency symbol)
+                              if (Number.isInteger(row[k])) {
+                                return row[k].toLocaleString('en-IN')
+                              } else {
+                                return row[k].toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                              }
+                            }
                           }
                           
                           return String(row[k])
@@ -442,6 +475,7 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
   const isLogClosingStockReport = reportTitle === 'Log Closing Stock - As On Date'
   const isLogBuyingSummaryReport = reportTitle === 'Log Buying Summary Month Wise'
   const isLogInvoiceSummaryReport = reportTitle === 'Log Invoice Summary'
+  const isLogCuttingSummaryReport = reportTitle === 'Log Cutting Summary'
   
   // Swap recordsets for Date Wise Grading (show Thickness Summary first, then Detailed Data)
   const recordsets = useMemo(() => {
@@ -770,6 +804,32 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
         </Box>
       )}
       
+      {/* Custom Charts for Log Cutting Summary Report */}
+      {isLogCuttingSummaryReport && (
+        <Box sx={{ width: '100%', m: 0, p: 0 }}>
+          <LogCuttingSummaryCharts data={response} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mb: 3, 
+            mt: 2,
+            px: 0,
+            py: 2,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderTop: '2px solid #e2e8f0',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+        </Box>
+      )}
+      
       {/* Table Navigation */}
       {recordsets.length > 1 && (
         <Paper sx={{ 
@@ -850,6 +910,9 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
               const logInvoiceSummaryTableNames = [
                 'Monthly Log Invoice Summary'
               ]
+              const logCuttingSummaryTableNames = [
+                'Monthly Log Cutting Summary'
+              ]
               const tableNames = isContainerLoadingReport 
                 ? containerTableNames 
                 : isDateWiseGradingReport 
@@ -864,7 +927,9 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                           ? logBuyingSummaryTableNames
                           : isLogInvoiceSummaryReport
                             ? logInvoiceSummaryTableNames
-                            : []
+                            : isLogCuttingSummaryReport
+                              ? logCuttingSummaryTableNames
+                              : []
               return (
               <Button
                 key={idx}
@@ -888,7 +953,9 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                             ? 'linear-gradient(135deg, #059669, #10b981)'
                             : isLogInvoiceSummaryReport
                               ? 'linear-gradient(135deg, #1d4ed8, #2563eb)'
-                              : idx % 2 === 0 
+                              : isLogCuttingSummaryReport
+                                ? 'linear-gradient(135deg, #ea580c, #dc2626)'
+                                : idx % 2 === 0 
                                 ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' 
                                 : 'linear-gradient(135deg, #ec4899, #db2777)',
                     boxShadow: isDailyGradingReport 
@@ -901,7 +968,9 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                             ? '0 8px 24px rgba(5, 150, 105, 0.3)'
                             : isLogInvoiceSummaryReport
                               ? '0 8px 24px rgba(29, 78, 216, 0.3)'
-                              : '0 8px 24px rgba(139, 92, 246, 0.3)',
+                              : isLogCuttingSummaryReport
+                                ? '0 8px 24px rgba(234, 88, 12, 0.3)'
+                                : '0 8px 24px rgba(139, 92, 246, 0.3)',
                     border: 'none',
                     color: 'white',
                     fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' },
@@ -918,7 +987,9 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                               ? 'linear-gradient(135deg, #10b981, #059669)'
                               : isLogInvoiceSummaryReport
                                 ? 'linear-gradient(135deg, #2563eb, #1d4ed8)'
-                                : idx % 2 === 0 
+                                : isLogCuttingSummaryReport
+                                  ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                                  : idx % 2 === 0 
                                   ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' 
                                   : 'linear-gradient(135deg, #db2777, #be185d)',
                       boxShadow: '0 12px 32px rgba(139, 92, 246, 0.4)',
@@ -979,6 +1050,9 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
           const logInvoiceSummaryTableNames = [
             'Monthly Log Invoice Summary'
           ]
+          const logCuttingSummaryTableNames = [
+            'Monthly Log Cutting Summary'
+          ]
           const tableNames = isContainerLoadingReport 
             ? containerTableNames 
             : isDateWiseGradingReport 
@@ -993,8 +1067,10 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                       ? logBuyingSummaryTableNames
                       : isLogInvoiceSummaryReport
                         ? logInvoiceSummaryTableNames
-                        : []
-          const tableTitle = (isContainerLoadingReport || isDateWiseGradingReport || isDailyGradingReport || isCurrentLogStockReport || isLogClosingStockReport || isLogBuyingSummaryReport || isLogInvoiceSummaryReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
+                        : isLogCuttingSummaryReport
+                          ? logCuttingSummaryTableNames
+                          : []
+          const tableTitle = (isContainerLoadingReport || isDateWiseGradingReport || isDailyGradingReport || isCurrentLogStockReport || isLogClosingStockReport || isLogBuyingSummaryReport || isLogInvoiceSummaryReport || isLogCuttingSummaryReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
           
           return (
           <Box key={idx} ref={(el) => (sectionRefs[idx].current = el)} sx={{ mb: 0, px: 0, width: '100%' }}>
